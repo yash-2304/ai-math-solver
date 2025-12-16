@@ -1,7 +1,16 @@
 from sympy import symbols, integrate, diff, sympify, latex, sin, cos, tan, limit, Eq, solve
 import re
+from sympy.parsing.sympy_parser import (
+    parse_expr,
+    standard_transformations,
+    implicit_multiplication_application,
+)
+
 
 x, y = symbols("x y")
+TRANSFORMATIONS = standard_transformations + (
+    implicit_multiplication_application,
+)
 
 def solve_calculus(expression: str):
     """
@@ -58,7 +67,7 @@ def solve_calculus(expression: str):
         for p, rpl in patterns:
             clean_expr = re.sub(p, rpl, clean_expr)
 
-        sym_expr = sympify(clean_expr)
+        sym_expr = parse_expr(clean_expr, transformations=TRANSFORMATIONS)
         result = diff(sym_expr, x)
 
         return {
@@ -76,8 +85,8 @@ def solve_calculus(expression: str):
     # ---------- IMPLICIT DIFFERENTIATION ----------
     if "=" in expr:
         left, right = expr.split("=")
-        left_expr = sympify(left)
-        right_expr = sympify(right)
+        left_expr = parse_expr(left, transformations=TRANSFORMATIONS)
+        right_expr = parse_expr(right, transformations=TRANSFORMATIONS)
 
         dydx = solve(
             Eq(
@@ -107,7 +116,7 @@ def solve_calculus(expression: str):
             .strip()
         )
 
-        sym_expr = sympify(clean_expr)
+        sym_expr = parse_expr(clean_expr, transformations=TRANSFORMATIONS)
         result = integrate(sym_expr, x)
 
         return {
