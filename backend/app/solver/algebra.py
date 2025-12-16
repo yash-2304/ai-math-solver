@@ -47,14 +47,26 @@ def solve_algebra(expression: str):
         symbols_in_eq = list(equation.free_symbols)
         solutions = solve(equation, symbols_in_eq, dict=True)
 
+        # Format solutions nicely
+        if solutions:
+            formatted = []
+            for sol in solutions:
+                formatted.append(
+                    ", ".join([f"{str(k)} = {str(v)}" for k, v in sol.items()])
+                )
+            solution_text = "; ".join(formatted)
+        else:
+            solution_text = "No solution found"
+
         return {
             "problem_type": "algebra",
             "original_expression": expression,
-            "solution": str(solutions),
+            "solution": solution_text,
             "steps": [
-                f"Start with the equation: {expression}",
-                "Apply implicit multiplication and algebraic rules",
-                "Solve for the variable(s)"
+                f"Given equation: {expression}",
+                "Apply implicit multiplication (e.g., 2x → 2·x)",
+                "Rearrange terms to isolate the variable(s)",
+                f"Solve the equation for {', '.join([str(s) for s in symbols_in_eq])}"
             ],
             "latex": str(equation)
         }

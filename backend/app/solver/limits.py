@@ -1,80 +1,111 @@
-from sympy import symbols, limit, latex
-from sympy.parsing.sympy_parser import (
-    parse_expr,
-    standard_transformations,
-    implicit_multiplication_application
-)
+import sympy as sp
+from sympy.parsing.sympy_parser import parse_expr
+import numpy as np
 
-x = symbols("x")
+x = sp.symbols("x")
 
-TRANSFORMATIONS = standard_transformations + (
-    implicit_multiplication_application,
-)
+def generate_graph_data(expr, var, start=-5, end=5, num=400):
+    xs = np.linspace(start, end, num)
+    ys = []
+
+    f = sp.lambdify(var, expr, modules=["numpy"])
+
+    for val in xs:
+        try:
+            y = f(val)
+            if y is None or np.isnan(y) or np.isinf(y):
+                ys.append(None)
+            else:
+                ys.append(float(y))
+        except Exception:
+            ys.append(None)
+
+    series = []
+    for x_val, y_val in zip(xs, ys):
+        if y_val is not None:
+            series.append({
+                "x": float(x_val),
+                "y": float(y_val)
+            })
+
+    return {
+        "series": series
+    }
+
 
 def solve_limits(expression: str):
     try:
-        # Normalize input
-        raw = expression.strip()
-        expr = raw.lower().replace("limit", "").replace("lim", "").strip()
+        # Normalize arrows and spacing
+        cleaned = (
+            expression
+            .lower()
+            .replace("→", "->")
+            .replace("to", "->")
+            .replace("limit", "")
+            .strip()
+        )
 
-        # Normalize arrows
-        expr = expr.replace("→", "->")
+        # Expect something like: x->0 sin(x)/x
+        if "->" not in cleaned:
+            raise ValueError("Invalid limit format. Use: limit x->a f(x)")
 
-        approach_value = 0
+        left, right = cleaned.split("->", 1)
 
-        # Handle syntax like: x->0 sin(x)/x
-        if "->" in expr:
-            before, after = expr.split("->", 1)
-            parts = after.strip().split(" ", 1)
-            approach_value = parse_expr(parts[0], transformations=TRANSFORMATIONS)
-            expr = parts[1] if len(parts) > 1 else before.strip()
+        # variable (usually x)
+        var_name = left.strip()
+        var = sp.symbols(var_name)
 
-        expr = expr.replace(" ", "")
+        # split point and expression
+        import re
+        m = re.match(r"\s*([-+]?\d*\.?\d+)\s*(.*)", right.strip())
+        if not m:
+            raise ValueError("Could not parse limit value.")
 
-        sym_expr = parse_expr(
-            expr,
-            transformations=TRANSFORMATIONS,
+        limit_at = float(m.group(1))
+        expr_str = m.group(2)
+
+        # Parse expression safely
+        expr = parse_expr(
+            expr_str,
+            local_dict={
+                var_name: var,
+                "sin": sp.sin,
+                "cos": sp.cos,
+                "tan": sp.tan,
+                "exp": sp.exp,
+                "log": sp.log
+            },
             evaluate=True
         )
 
-        # --- Step generation (smart, non-destructive) ---
-        steps = ["Identify the limit expression"]
+        # Compute limit
+        result = sp.limit(expr, var, limit_at)
 
-        # Recognize common limits
-        try:
-            from sympy import sin, cos
-            if sym_expr == sin(x)/x and approach_value == 0:
-                steps.extend([
-                    "Recognize the standard limit sin(x)/x as x → 0",
-                    "Apply the known result: lim x→0 sin(x)/x = 1"
-                ])
-            elif sym_expr == (1 - cos(x))/x**2 and approach_value == 0:
-                steps.extend([
-                    "Recognize the standard limit (1 − cos(x))/x² as x → 0",
-                    "Apply the known result: lim x→0 (1 − cos(x))/x² = 1/2"
-                ])
-            else:
-                steps.append("Substitute the approaching value and simplify")
-        except Exception:
-            steps.append("Substitute the approaching value and simplify")
+        # Always generate graph data for the function
+        graph = generate_graph_data(expr, var, start=-5, end=5)
 
-        result = limit(sym_expr, x, approach_value)
-
-        steps.append("Conclude the limit value")
-
-        return {
-            "problem_type": "limits",
-            "original_expression": raw,
-            "solution": str(result),
-            "steps": steps,
-            "latex": latex(result)
-        }
-
-    except Exception as e:
         return {
             "problem_type": "limits",
             "original_expression": expression,
-            "solution": f"Error: {str(e)}",
-            "steps": [],
-            "latex": ""
+            "solution": str(result),
+            "steps": [
+                "Identify the limit expression",
+                f"Evaluate behavior as {var} → {limit_at}",
+                "Apply known limit rules"
+            ],
+            "latex": sp.latex(result),
+            "graph": graph
+        }
+
+    except Exception as e:
+        # IMPORTANT: still return graph key so frontend can render
+        return {
+            "problem_type": "limits",
+            "original_expression": expression,
+            "solution": "Error",
+            "steps": [str(e)],
+            "latex": "",
+            "graph": {
+                "series": []
+            }
         }

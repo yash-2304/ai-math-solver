@@ -1,4 +1,5 @@
 from sympy import symbols, integrate, diff, sympify, latex, sin, cos, tan, limit, Eq, solve
+x, y = symbols("x y")
 import re
 from sympy.parsing.sympy_parser import (
     parse_expr,
@@ -6,8 +7,25 @@ from sympy.parsing.sympy_parser import (
     implicit_multiplication_application,
 )
 
+import numpy as np
 
-x, y = symbols("x y")
+def generate_graph_data(sym_expr, var=x, start=-10, end=10, num=400):
+    xs = np.linspace(start, end, num)
+    ys = []
+
+    for val in xs:
+        try:
+            y_val = sym_expr.subs(var, val)
+            y_val = float(y_val)
+            ys.append(y_val)
+        except Exception:
+            ys.append(None)
+
+    return {
+        "x": xs.tolist(),
+        "y": ys
+    }
+
 TRANSFORMATIONS = standard_transformations + (
     implicit_multiplication_application,
 )
@@ -29,11 +47,12 @@ def solve_calculus(expression: str):
         if match:
             var, point, func = match.groups()
             sym_var = symbols(var)
-            sym_func = sympify(func)
-            result = limit(sym_func, sym_var, float(point))
+            sym_func = parse_expr(func, transformations=TRANSFORMATIONS)
+            result = limit(sym_func, sym_var, sympify(point))
+            graph = generate_graph_data(sym_func)
 
             return {
-                "problem_type": "calculus",
+                "problem_type": "limits",
                 "original_expression": expression,
                 "solution": str(result),
                 "steps": [
@@ -41,7 +60,8 @@ def solve_calculus(expression: str):
                     "Evaluate the expression",
                     "Simplify the result"
                 ],
-                "latex": latex(result)
+                "latex": latex(result),
+                "graph": graph
             }
 
     # ---------- DERIVATIVES ----------
@@ -69,6 +89,10 @@ def solve_calculus(expression: str):
 
         sym_expr = parse_expr(clean_expr, transformations=TRANSFORMATIONS)
         result = diff(sym_expr, x)
+        graph = {
+            "original": generate_graph_data(sym_expr),
+            "derivative": generate_graph_data(result),
+        }
 
         return {
             "problem_type": "calculus",
@@ -79,7 +103,8 @@ def solve_calculus(expression: str):
                 "Apply the chain rule",
                 "Differentiate and simplify"
             ],
-            "latex": latex(result)
+            "latex": latex(result),
+            "graph": graph
         }
 
     # ---------- IMPLICIT DIFFERENTIATION ----------
@@ -118,6 +143,7 @@ def solve_calculus(expression: str):
 
         sym_expr = parse_expr(clean_expr, transformations=TRANSFORMATIONS)
         result = integrate(sym_expr, x)
+        graph = generate_graph_data(result)
 
         return {
             "problem_type": "calculus",
@@ -128,7 +154,8 @@ def solve_calculus(expression: str):
                 "Apply integration rules",
                 "Add the constant of integration"
             ],
-            "latex": latex(result)
+            "latex": latex(result),
+            "graph": graph
         }
 
     return {
