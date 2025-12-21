@@ -10,10 +10,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://ai-math-solver-mocha.vercel.app"
-    ],
+    allow_origins=["*"],  # TEMP: allow all origins for Vercel ↔ Render
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
