@@ -1,13 +1,13 @@
 import { useState } from "react";
-const API_BASE =
-  import.meta.env.VITE_API_BASE?.trim() ||
-  "https://ai-math-solver-backend-90g0.onrender.com";
+const RAW_API_BASE = typeof import.meta !== "undefined"
+  ? import.meta.env?.VITE_API_BASE
+  : undefined;
 
-console.log("API_BASE at runtime:", API_BASE);
+const API_BASE = (RAW_API_BASE && RAW_API_BASE.trim())
+  ? RAW_API_BASE.trim().replace(/\/+$/, "")
+  : "https://ai-math-solver-backend-90g0.onrender.com";
 
-if (!API_BASE) {
-  console.error("❌ VITE_API_BASE missing. Frontend will not call backend.");
-}
+console.log("✅ API_BASE resolved to:", API_BASE);
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
 // Inline SVG icon components (no external deps)
@@ -91,7 +91,7 @@ function App() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/solve`, {
+      const res = await fetch(API_BASE + "/solve", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -107,6 +107,7 @@ function App() {
       setResult(data);
     } catch (err) {
       setError(`Backend not reachable. Tried: ${API_BASE}/solve`);
+      console.error("❌ API_BASE at failure:", API_BASE);
       console.error("Fetch failed to:", `${API_BASE}/solve`, err);
     }
 
