@@ -10,11 +10,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all for now
+    allow_origins=["*"],  # TEMP: allow all origins (safe for demo). Lock this down in prod.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# API routes (e.g. POST /solve)
 app.include_router(solve_router)
 
 @app.get("/")
