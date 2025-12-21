@@ -10,7 +10,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TEMP: allow all origins (safe for demo). Lock this down in prod.
+    allow_origins=[
+        "http://localhost:5173",
+        "https://ai-math-solver-mocha.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
