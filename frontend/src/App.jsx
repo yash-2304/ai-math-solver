@@ -1,8 +1,10 @@
 import { useState } from "react";
-const API_BASE = import.meta.env.VITE_API_BASE;
+const API_BASE = import.meta.env.VITE_API_BASE?.trim();
+
+console.log("API_BASE at runtime:", API_BASE);
 
 if (!API_BASE) {
-  throw new Error("VITE_API_BASE is NOT defined at build time");
+  console.error("❌ VITE_API_BASE missing. Frontend will not call backend.");
 }
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
@@ -102,7 +104,8 @@ function App() {
       const data = await res.json();
       setResult(data);
     } catch (err) {
-      setError("Backend not reachable. Is FastAPI running?");
+      setError(`Backend not reachable. Tried: ${API_BASE}/solve`);
+      console.error("Fetch failed to:", `${API_BASE}/solve`, err);
     }
 
     setLoading(false);
