@@ -1,6 +1,9 @@
 import { useState } from "react";
-const API_BASE =
-  import.meta.env.VITE_API_BASE ;
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+if (!API_BASE) {
+  throw new Error("VITE_API_BASE is NOT defined at build time");
+}
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
 // Inline SVG icon components (no external deps)
