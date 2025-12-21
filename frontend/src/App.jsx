@@ -1,6 +1,53 @@
 import { useState } from "react";
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
+// Inline SVG icon components (no external deps)
+const IconCalculator = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="2" width="18" height="20" rx="3" stroke="currentColor" strokeWidth="1.5"/>
+    <rect x="7" y="6" width="10" height="3" fill="currentColor"/>
+    <circle cx="8" cy="13" r="1" fill="currentColor"/>
+    <circle cx="12" cy="13" r="1" fill="currentColor"/>
+    <circle cx="16" cy="13" r="1" fill="currentColor"/>
+    <circle cx="8" cy="17" r="1" fill="currentColor"/>
+    <circle cx="12" cy="17" r="1" fill="currentColor"/>
+    <circle cx="16" cy="17" r="1" fill="currentColor"/>
+  </svg>
+);
+
+const IconBrain = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0 0 6v1a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3Z" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 0 6v1a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3Z" stroke="currentColor" strokeWidth="1.5"/>
+  </svg>
+);
+
+const IconChart = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M4 19V5M4 19H20" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M7 15l4-4 3 3 4-6" stroke="currentColor" strokeWidth="1.5"/>
+  </svg>
+);
+
+const IconTag = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <path d="M3 12l9 9 9-9-9-9H3v9Z" stroke="currentColor" strokeWidth="1.5"/>
+    <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>
+  </svg>
+);
+
+const IconLoader = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="spin">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" opacity="0.3"/>
+    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="2"/>
+  </svg>
+);
+
+const IconSparkle = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5L12 2Z"/>
+  </svg>
+);
 import {
   LineChart,
   Line,
@@ -87,6 +134,13 @@ function App() {
             display: inline-block !important;
           }
         }
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
       `}</style>
       <div
         className="app-grid"
@@ -101,7 +155,17 @@ function App() {
         }}
       >
         <div className="sidebar" style={{ padding: "40px", borderRight: "1px solid #2a2a2a" }}>
-          <h1 style={{ marginBottom: "20px" }}>🧮 AI Math Solver</h1>
+          <h1
+            style={{
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <IconCalculator />
+            AI Math Solver
+          </h1>
           <p style={{
             marginTop: "-10px",
             marginBottom: "20px",
@@ -168,8 +232,17 @@ function App() {
           <br />
 
           {loading && (
-            <p style={{ opacity: 0.7, fontSize: "14px" }}>
-              ⏳ Solving… please wait
+            <p
+              style={{
+                opacity: 0.7,
+                fontSize: "14px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <IconLoader />
+              Solving… please wait
             </p>
           )}
 
@@ -197,8 +270,9 @@ function App() {
                 maxWidth: "600px",
               }}
             >
-              <h3 style={{ marginTop: 0 }}>
-                📌 Type: {result.problem_type}
+              <h3 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                <IconTag />
+                Type: {result.problem_type}
               </h3>
 
               <p>
@@ -212,27 +286,8 @@ function App() {
                 opacity: 0.6
               }} />
 
-              <p>
-                <strong>Solution:</strong>
-              </p>
+              <p><strong>Final Answer:</strong></p>
               <BlockMath math={result.solution} />
-
-              {result.steps && result.steps.length > 0 && (
-                <>
-                  <strong>Steps:</strong>
-                  <ol>
-                    {result.steps.map((step, idx) => (
-                      <li key={idx}>{step}</li>
-                    ))}
-                  </ol>
-                </>
-              )}
-
-              {result.latex && (
-                <div style={{ marginTop: "12px", opacity: 0.9 }}>
-                  <InlineMath math={result.latex} />
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -272,7 +327,17 @@ function App() {
                 {showExplanation ? "Hide explanation" : "Show explanation"}
               </button>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                <h2 style={{ margin: 0 }}>🧠 Explanation Panel</h2>
+                <h2
+                  style={{
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <IconBrain />
+                  Explanation Panel
+                </h2>
                 <span style={{
                   fontSize: "12px",
                   padding: "4px 8px",
@@ -307,7 +372,10 @@ function App() {
                     border: "1px dashed #2a2a2a",
                     fontSize: "14px"
                   }}>
-                    ✨ Try examples like:
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <IconSparkle />
+                      <span>Try examples like:</span>
+                    </div>
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "10px" }}>
                       {[
                         "d/dx sin(3x)",
@@ -343,7 +411,10 @@ function App() {
                   border: "1px solid #2a2a2a",
                   opacity: 0.8
                 }}>
-                  <p style={{ fontSize: "16px" }}>⏳ Working on the solution…</p>
+                  <p style={{ fontSize: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <IconLoader />
+                    Working on the solution…
+                  </p>
                   <p style={{ fontSize: "14px", opacity: 0.7 }}>
                     The system is analyzing the expression and preparing a step-by-step explanation.
                   </p>
@@ -363,14 +434,38 @@ function App() {
                     </p>
 
                     <p>
-                      <strong>What is happening?</strong>
+                      <strong>Conceptual explanation:</strong>
                       <br />
-                      {result.problem_type === "calculus" &&
-                        "This problem involves differentiation. We analyze the structure of the function and apply differentiation rules step by step."}
-                      {result.problem_type === "algebra" &&
-                        "This problem involves solving an equation. We isolate the variable using algebraic rules."}
-                      {result.problem_type === "limits" &&
-                        "This problem involves evaluating a limit by simplifying the expression as the variable approaches a value."}
+                      {result.problem_type === "calculus" && (
+                        <>
+                          We are computing a <strong>derivative</strong>, which measures how fast a function changes with respect to its input.
+                          <br /><br />
+                          The function here is a <strong>composition</strong>: an outer trigonometric function applied to an inner polynomial.
+                          This means we must use the <strong>chain rule</strong>.
+                          <br /><br />
+                          For a function of the form <InlineMath math="f(g(x))" />, the derivative is:
+                          <br />
+                          <BlockMath math="\\frac{d}{dx} f(g(x)) = f'(g(x)) \\cdot g'(x)" />
+                        </>
+                      )}
+
+                      {result.problem_type === "algebra" && (
+                        <>
+                          We are solving an <strong>equation</strong> by finding the value of the variable that makes both sides equal.
+                          <br /><br />
+                          The strategy is to <strong>isolate the variable</strong> using inverse operations
+                          (addition, subtraction, multiplication, and division).
+                        </>
+                      )}
+
+                      {result.problem_type === "limits" && (
+                        <>
+                          We are evaluating a <strong>limit</strong>, which describes how a function behaves as the input approaches a specific value.
+                          <br /><br />
+                          Instead of directly substituting the value, we analyze the behavior of the function near that point
+                          and simplify the expression using known limit identities.
+                        </>
+                      )}
                     </p>
 
                     {result.steps && result.steps.length > 0 && (
@@ -418,15 +513,6 @@ function App() {
                       </>
                     )}
 
-                    <div style={{
-                      marginTop: "20px",
-                      padding: "16px",
-                      border: "1px dashed #333",
-                      borderRadius: "8px",
-                      opacity: 0.6
-                    }}>
-                      📈 Visualizations & interactive graphs coming soon
-                    </div>
 
                     <p style={{ opacity: 0.7, marginTop: "16px" }}>
                       This panel will later support interactive explanations, visualizations,
@@ -438,7 +524,7 @@ function App() {
             </div>
           </div>
         </div>
-        {showGraphs && (
+        {showGraphs && typeof window !== "undefined" && window.innerWidth > 900 && (
           <div
             className="graphs-panel"
             style={{
@@ -460,7 +546,17 @@ function App() {
                 padding: "20px",
               }}
             >
-              <h3 style={{ marginTop: 0 }}>📊 Graphs</h3>
+              <h3
+                style={{
+                  marginTop: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <IconChart />
+                Graphs
+              </h3>
 
               {result ? (
                 <ResponsiveContainer width="100%" height={260}>
