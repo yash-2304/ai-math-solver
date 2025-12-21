@@ -1,6 +1,8 @@
 import { useState } from "react";
-const API_BASE = "https://ai-math-solver-backend-90g0.onrender.com";
-console.log("✅ API_BASE (forced):", API_BASE);
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  "https://ai-math-solver-backend-90g0.onrender.com";
+console.log("✅ API_BASE (resolved):", API_BASE);
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
 // Inline SVG icon components (no external deps)
