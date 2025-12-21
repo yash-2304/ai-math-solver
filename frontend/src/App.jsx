@@ -1,4 +1,6 @@
 import { useState } from "react";
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://localhost:8000";
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
 // Inline SVG icon components (no external deps)
@@ -82,7 +84,7 @@ function App() {
     setError(null);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/solve", {
+      const res = await fetch(`${API_BASE}/solve`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
