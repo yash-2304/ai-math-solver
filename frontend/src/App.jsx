@@ -530,7 +530,7 @@ function App() {
             </div>
           </div>
         </div>
-        {showGraphs && typeof window !== "undefined" && window.innerWidth > 900 && (
+        {showGraphs && (
           <div
             className="graphs-panel"
             style={{
