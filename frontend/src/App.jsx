@@ -1,5 +1,7 @@
 import { useState } from "react";
-const API_BASE = import.meta.env.VITE_API_BASE?.trim();
+const API_BASE =
+  import.meta.env.VITE_API_BASE?.trim() ||
+  "https://ai-math-solver-backend-90g0.onrender.com";
 
 console.log("API_BASE at runtime:", API_BASE);
 
